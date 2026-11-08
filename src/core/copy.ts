@@ -49,7 +49,6 @@ function shouldCopy(sourceRoot: string, profilesDir: string, src: string): boole
 export interface CopyOptions {
   sourceName: string;
   sourceDir: string;
-  opencodeVersion?: string;
   force?: boolean;
 }
 
@@ -132,9 +131,6 @@ export async function copyProfile(paths: Paths, name: string, options: CopyOptio
       version: 1,
       name,
       source: options.sourceName,
-      sourcePath: resolve(options.sourceDir),
-      createdAt: new Date().toISOString(),
-      ...(options.opencodeVersion ? { opencodeVersion: options.opencodeVersion } : {}),
     };
     await writeManifest(temp, manifest);
     await replaceTarget(target, temp, options.force ?? false);
@@ -148,7 +144,6 @@ export async function copyProfile(paths: Paths, name: string, options: CopyOptio
 export async function emptyProfile(
   paths: Paths,
   name: string,
-  opencodeVersion?: string,
   force = false,
 ): Promise<Manifest> {
   const target = profileDir(paths, name);
@@ -166,9 +161,6 @@ export async function emptyProfile(
       version: 1,
       name,
       source: "empty",
-      sourcePath: "",
-      createdAt: new Date().toISOString(),
-      ...(opencodeVersion ? { opencodeVersion } : {}),
     };
     await writeManifest(temp, manifest);
     await replaceTarget(target, temp, force);

@@ -8,9 +8,6 @@ export interface Manifest {
   version: 1;
   name: string;
   source: string;
-  sourcePath: string;
-  createdAt: string;
-  opencodeVersion?: string;
 }
 
 export interface Profile {
