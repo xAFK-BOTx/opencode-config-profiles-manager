@@ -1,0 +1,43 @@
+{
+  "name": "opencode-config-profiles-manager",
+  "version": "0.1.0",
+  "description": "Full config-directory profiles for OpenCode",
+  "type": "module",
+  "bin": {
+    "ocpm": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "postbuild": "node -e \"import('node:fs').then(fs=>{try{fs.chmodSync('dist/cli.js',0o755)}catch{}})\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "cross-spawn": "^7.0.6",
+    "jsonc-parser": "^3.3.1",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^24.19.2",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.12"
+  },
+  "keywords": [
+    "opencode",
+    "profiles",
+    "config"
+  ],
+  "license": "MIT"
+}
