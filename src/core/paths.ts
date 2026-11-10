@@ -1,3 +1,4 @@
+import { realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import crossSpawn from "cross-spawn";
@@ -54,7 +55,10 @@ export function resolvePaths(options: PathOptions = {}): Paths {
 }
 
 export function normalizePath(value: string): string {
-  const resolved = resolve(value);
+  let resolved = resolve(value);
+  try {
+    resolved = realpathSync.native(resolved);
+  } catch {}
   return process.platform === "win32" ? resolved.toLowerCase() : resolved;
 }
 
