@@ -23,15 +23,19 @@ OpenCode sees `disabled` and starts a private server for the profile. The global
 
 ## Installation
 
-Locally from the repository:
+```bash
+npm install -g opencode-config-profiles-manager
+```
+
+After that the `ocpm` command is available.
+
+From source:
 
 ```bash
 npm install
 npm run build
 npm link
 ```
-
-After that the `ocpm` command is available.
 
 ## Quick start
 

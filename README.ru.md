@@ -23,15 +23,19 @@ OpenCode видит `disabled` и поднимает приватный серв
 
 ## Установка
 
-Локально из репозитория:
+```bash
+npm install -g opencode-config-profiles-manager
+```
+
+После этого доступна команда `ocpm`.
+
+Из исходников:
 
 ```bash
 npm install
 npm run build
 npm link
 ```
-
-После этого доступна команда `ocpm`.
 
 ## Быстрый старт
 

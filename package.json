@@ -1,6 +1,6 @@
 {
   "name": "opencode-config-profiles-manager",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Full config-directory profiles for OpenCode",
   "type": "module",
   "bin": {
@@ -40,5 +40,9 @@
     "profiles",
     "config"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xAFK-BOTx/opencode-config-profiles-manager.git"
+  }
 }
