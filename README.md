@@ -1,27 +1,29 @@
 # ocpm — OpenCode Config Profiles Manager
 
-Профили OpenCode как отдельные каталоги конфигурации. Каждый профиль — полная копия
-`~/.config/opencode` со своими `opencode.json`, `cli.json`, `agents/`, `commands/`,
-`plugins/`, `skills/` и `AGENTS.md`.
+[Русская версия](README.ru.md)
 
-`default` — это существующий глобальный каталог OpenCode. `ocpm` его не изменяет.
+OpenCode profiles as separate configuration directories. Each profile is a full copy
+of `~/.config/opencode` with its own `opencode.json`, `cli.json`, `agents/`, `commands/`,
+`plugins/`, `skills/` and `AGENTS.md`.
 
-## Зачем
+`default` is the existing global OpenCode directory. `ocpm` does not modify it.
 
-В OpenCode V2 один фоновый сервис обслуживает один конфиг. Если просто подставить
-`OPENCODE_CONFIG_DIR`, запущенный сервис продолжит использовать старый конфиг.
-`ocpm` кладёт в каждый профиль свой `service.json`:
+## Why
+
+In OpenCode V2, one background service serves one config. If you just set
+`OPENCODE_CONFIG_DIR`, the running service keeps using the old config.
+`ocpm` puts its own `service.json` into each profile:
 
 ```json
 { "disabled": true }
 ```
 
-OpenCode видит `disabled` и поднимает приватный сервер для профиля. Глобальный
-`service.json` и общий сервис остаются нетронутыми.
+OpenCode sees `disabled` and starts a private server for the profile. The global
+`service.json` and the shared service remain untouched.
 
-## Установка
+## Installation
 
-Локально из репозитория:
+Locally from the repository:
 
 ```bash
 npm install
@@ -29,9 +31,9 @@ npm run build
 npm link
 ```
 
-После этого доступна команда `ocpm`.
+After that the `ocpm` command is available.
 
-## Быстрый старт
+## Quick start
 
 ```bash
 ocpm init
@@ -40,30 +42,30 @@ ocpm list
 ocpm run unity
 ```
 
-Проверка:
+Check:
 
 ```bash
 ocpm doctor
 ocpm doctor unity --fix
 ```
 
-## Команды
+## Commands
 
-| Команда | Назначение |
+| Command | Purpose |
 |---|---|
-| `ocpm init` | Создать каталог профилей |
-| `ocpm create <name> [--from default\|<profile>] [--empty] [--force]` | Создать профиль полной копией |
-| `ocpm list` | Список профилей, источника и статуса |
-| `ocpm run <name> [args...]` | Запустить OpenCode с профилем |
-| `ocpm exec <name> -- <cmd...>` | Выполнить команду с окружением профиля |
-| `ocpm shell <name>` | Shell с окружением профиля |
-| `ocpm env <name> [--shell sh\|fish\|powershell]` | Напечатать export-команды |
-| `ocpm path <name>` | Путь к профилю |
-| `ocpm which` | Текущий профиль |
-| `ocpm remove <name> [--force]` | Удалить профиль |
-| `ocpm doctor [name] [--fix]` | Проверить конфиги и `service.json` |
+| `ocpm init` | Create the profiles directory |
+| `ocpm create <name> [--from default\|<profile>] [--empty] [--force]` | Create a profile as a full copy |
+| `ocpm list` | List profiles, source and status |
+| `ocpm run <name> [args...]` | Run OpenCode with a profile |
+| `ocpm exec <name> -- <cmd...>` | Run a command with the profile environment |
+| `ocpm shell <name>` | Shell with the profile environment |
+| `ocpm env <name> [--shell sh\|fish\|powershell]` | Print export commands |
+| `ocpm path <name>` | Path to the profile |
+| `ocpm which` | Current profile |
+| `ocpm remove <name> [--force]` | Remove a profile |
+| `ocpm doctor [name] [--fix]` | Check configs and `service.json` |
 
-### Примеры
+### Examples
 
 ```bash
 ocpm run unity
@@ -77,22 +79,22 @@ eval "$(ocpm env unity)"
 opencode
 ```
 
-`ocpm run` передаёт всё после имени профиля в OpenCode. `ocpm exec` требует `--`
-перед командой.
+`ocpm run` passes everything after the profile name to OpenCode. `ocpm exec` requires `--`
+before the command.
 
-## Где лежат профили
+## Where profiles live
 
-По умолчанию:
+By default:
 
 ```text
 ~/.config/opencode/profiles/<name>
 ```
 
-То есть внутри глобального каталога OpenCode. Профили можно коммитить в git.
+That is, inside the global OpenCode directory. Profiles can be committed to git.
 
-`default` — сам `~/.config/opencode`.
+`default` is `~/.config/opencode` itself.
 
-Переопределение путей:
+Overriding paths:
 
 ```bash
 OCPM_BASE_DIR=/path/to/opencode-config
@@ -100,62 +102,62 @@ OCPM_PROFILES_DIR=/path/to/profiles
 OCPM_OPENCODE_BIN=/path/to/opencode
 ```
 
-Или флагами до подкоманды:
+Or with flags before the subcommand:
 
 ```bash
 ocpm --base-dir /path/to/config --profiles-dir /path/to/profiles list
 ```
 
-## Что копируется
+## What gets copied
 
-При `ocpm create` копируется всё, кроме:
+On `ocpm create`, everything is copied except:
 
-- `.git/`, `.log/`, `.opencode/` (состояние board);
-- `profiles/` (чтобы не было рекурсии);
-- `service.json` (в профиль пишется `{"disabled":true}`);
+- `.git/`, `.log/`, `.opencode/` (board state);
+- `profiles/` (to avoid recursion);
+- `service.json` (`{"disabled":true}` is written to the profile);
 - `.env`, `.env.*`, `.credentials*`;
 - `.npmrc`, `.netrc`, `.git-credentials`, `.pypirc`, `auth.json`;
 - `node_modules/`, `sessions/`, `storages/`, `logs/`, `cache/`, `tmp/`;
 - `*.log`, `.DS_Store`, `Thumbs.db`, `chrome-devtools-profile/`.
 
-Копирование атомарное: профиль собирается во временном каталоге и переименовывается
-только после успеха.
+Copying is atomic: the profile is assembled in a temporary directory and renamed
+only after success.
 
-Скопированный `.gitignore` игнорирует `service.json`, поэтому в git он не попадёт;
-`ocpm run` создаст его заново.
+The copied `.gitignore` ignores `service.json`, so it will not end up in git;
+`ocpm run` will create it again.
 
-## Сервис и данные
+## Service and data
 
-- У профиля свой `service.json` с `disabled: true` → приватный сервер.
-- Глобальный `~/.config/opencode/service.json` не читается и не изменяется.
-- Auth и сессии общие: `~/.local/share/opencode/auth.json`, `opencode.db`.
-- Если в профиле уже есть `service.json` без `disabled`, `ocpm run` добавит
-  `--standalone` и предупредит.
-- Если `ocpm run` запущен изнутри `~/.config/opencode`, ставится
-  `OPENCODE_DISABLE_PROJECT_CONFIG=1`, чтобы глобальный `opencode.json` не
-  подхватился ещё и как проектный и не перекрыл профиль.
-- `ocpm env`, выполненный изнутри каталога конфигурации, оставляет
-  `OPENCODE_DISABLE_PROJECT_CONFIG=1` в текущей оболочке. Если потом перейти в
-  проект со своим `opencode.json`, выполните `unset OPENCODE_DISABLE_PROJECT_CONFIG`
-  или `eval "$(ocpm env default)"`.
+- A profile has its own `service.json` with `disabled: true` → private server.
+- The global `~/.config/opencode/service.json` is not read and not modified.
+- Auth and sessions are shared: `~/.local/share/opencode/auth.json`, `opencode.db`.
+- If the profile already has a `service.json` without `disabled`, `ocpm run` will add
+  `--standalone` and warn.
+- If `ocpm run` is launched from inside `~/.config/opencode`, `OPENCODE_DISABLE_PROJECT_CONFIG=1`
+  is set so that the global `opencode.json` is not also picked up as a project config
+  and does not override the profile.
+- `ocpm env` executed from inside the configuration directory leaves
+  `OPENCODE_DISABLE_PROJECT_CONFIG=1` in the current shell. If you then move to a
+  project with its own `opencode.json`, run `unset OPENCODE_DISABLE_PROJECT_CONFIG`
+  or `eval "$(ocpm env default)"`.
 
-## Ограничения
+## Limitations
 
-- Профили — независимые копии. Изменения в `default` не попадают в них автоматически.
-- `service.json` в профиле отключает remote-доступ и пароль. Если нужен remote —
-  настройте его отдельно в профиле.
-- `profiles/` не синхронизируется с базой; для обновления создайте профиль заново
-  или скопируйте нужные файлы вручную.
-- `ocpm` не управляет git и не коммитит профили.
+- Profiles are independent copies. Changes in `default` do not propagate to them automatically.
+- `service.json` in a profile disables remote access and the password. If you need remote —
+  configure it separately in the profile.
+- `profiles/` is not synchronized with the database; to update, create the profile again
+  or copy the needed files manually.
+- `ocpm` does not manage git and does not commit profiles.
 
 ## Windows
 
-- Пути определяются через `opencode debug paths`, с fallback на `~/.config/opencode`.
-- Запуск идёт через `cross-spawn`, поэтому находится `opencode.cmd`.
-- `ocpm shell` использует `%COMSPEC%` или `$SHELL`.
-- `ocpm env` поддерживает PowerShell.
+- Paths are determined via `opencode debug paths`, with a fallback to `~/.config/opencode`.
+- Launch goes through `cross-spawn`, so `opencode.cmd` is found.
+- `ocpm shell` uses `%COMSPEC%` or `$SHELL`.
+- `ocpm env` supports PowerShell.
 
-## Разработка
+## Development
 
 ```bash
 npm install
@@ -164,5 +166,5 @@ npm test
 npm run typecheck
 ```
 
-Тесты используют временные каталоги и фейковый `opencode`, реальный конфиг не
-изменяется.
+The tests use temporary directories and a fake `opencode`; the real config is not
+modified.
