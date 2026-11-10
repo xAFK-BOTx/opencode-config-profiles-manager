@@ -9,7 +9,8 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "README.ru.md"
   ],
   "engines": {
     "node": ">=20"
