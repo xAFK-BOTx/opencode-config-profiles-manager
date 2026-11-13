@@ -2,7 +2,7 @@ import { buildProfileEnv, buildRunArgs, spawnInherit } from "../core/opencode.js
 import { warn } from "../core/output.js";
 import { resolvePaths, type PathOptions } from "../core/paths.js";
 import { resolveProfile } from "../core/profile.js";
-import { ensureServiceDisabled } from "../core/service.js";
+import { ensureServiceDisabled, readServiceEnv } from "../core/service.js";
 
 export async function runCommand(name: string, args: string[], options: PathOptions): Promise<void> {
   const paths = resolvePaths(options);
@@ -17,7 +17,11 @@ export async function runCommand(name: string, args: string[], options: PathOpti
   const code = await spawnInherit({
     bin: paths.bin,
     args: buildRunArgs(profile, opencodeArgs, serviceOk),
-    env: buildProfileEnv(profile, process.env, { configDir: paths.configDir, cwd: process.cwd() }),
+    env: buildProfileEnv(profile, process.env, {
+      configDir: paths.configDir,
+      cwd: process.cwd(),
+      serviceEnv: await readServiceEnv(profile.dir),
+    }),
   });
   process.exitCode = code;
 }

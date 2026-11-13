@@ -21,6 +21,14 @@
 OpenCode видит `disabled` и поднимает приватный сервер для профиля. Глобальный
 `service.json` и общий сервис остаются нетронутыми.
 
+Этот приватный сервер не читает блок `env` из `service.json` — OpenCode применяет его
+только к общему фоновому сервису. Поэтому `ocpm` читает `service.json` сам и передаёт
+его `env` в окружение запускаемого процесса:
+
+```json
+{ "disabled": true, "env": { "OPENCODE_DISABLE_PROJECT_CONFIG": "1" } }
+```
+
 ## Установка
 
 ```bash
@@ -140,6 +148,12 @@ ocpm --base-dir /path/to/config --profiles-dir /path/to/profiles list
 - Если `ocpm run` запущен изнутри `~/.config/opencode`, ставится
   `OPENCODE_DISABLE_PROJECT_CONFIG=1`, чтобы глобальный `opencode.json` не
   подхватился ещё и как проектный и не перекрыл профиль.
+- Блок `env` из `service.json` профиля попадает в окружение `ocpm run`, `ocpm exec`,
+  `ocpm shell` и `ocpm env`. Переносятся только строки с корректными именами
+  переменных; `XDG_STATE_HOME` пропускается, как и в самом OpenCode. Это единственный
+  способ включить `OPENCODE_DISABLE_PROJECT_CONFIG` для профиля.
+- Для `default` `env` из общего `service.json` применяет сам общий сервис при старте,
+  а не клиент. После правки файла выполните `opencode service restart`.
 - `ocpm env`, выполненный изнутри каталога конфигурации, оставляет
   `OPENCODE_DISABLE_PROJECT_CONFIG=1` в текущей оболочке. Если потом перейти в
   проект со своим `opencode.json`, выполните `unset OPENCODE_DISABLE_PROJECT_CONFIG`

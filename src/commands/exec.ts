@@ -2,7 +2,7 @@ import { buildProfileEnv, spawnInherit } from "../core/opencode.js";
 import { CliError, warn } from "../core/output.js";
 import { resolvePaths, type PathOptions } from "../core/paths.js";
 import { resolveProfile } from "../core/profile.js";
-import { ensureServiceDisabled } from "../core/service.js";
+import { ensureServiceDisabled, readServiceEnv } from "../core/service.js";
 
 export async function execCommand(name: string, command: string[], options: PathOptions): Promise<void> {
   const args = command[0] === "--" ? command.slice(1) : command;
@@ -17,7 +17,11 @@ export async function execCommand(name: string, command: string[], options: Path
   const code = await spawnInherit({
     bin,
     args: rest,
-    env: buildProfileEnv(profile, process.env, { configDir: paths.configDir, cwd: process.cwd() }),
+    env: buildProfileEnv(profile, process.env, {
+      configDir: paths.configDir,
+      cwd: process.cwd(),
+      serviceEnv: await readServiceEnv(profile.dir),
+    }),
   });
   process.exitCode = code;
 }

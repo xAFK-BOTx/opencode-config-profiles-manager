@@ -42,6 +42,7 @@ export async function makeFakeOpencode(dir: string): Promise<string> {
           ")",
           "if defined OPENCODE_CONFIG_DIR (echo ENV_OPENCODE_CONFIG_DIR=%OPENCODE_CONFIG_DIR%) else (echo ENV_OPENCODE_CONFIG_DIR=)",
           "if defined OCPM_PROFILE (echo ENV_OCPM_PROFILE=%OCPM_PROFILE%) else (echo ENV_OCPM_PROFILE=)",
+          "if defined OPENCODE_DISABLE_PROJECT_CONFIG (echo ENV_OPENCODE_DISABLE_PROJECT_CONFIG=%OPENCODE_DISABLE_PROJECT_CONFIG%) else (echo ENV_OPENCODE_DISABLE_PROJECT_CONFIG=)",
           ":loop",
           "if \"%~1\"==\"\" goto end",
           "echo ARG:%~1",
@@ -55,6 +56,7 @@ export async function makeFakeOpencode(dir: string): Promise<string> {
           'if [ "$1" = "--version" ] && [ "${OCPM_FAKE_VERSION-}" = "1" ]; then echo "2.2.6"; exit 0; fi',
           'echo "ENV_OPENCODE_CONFIG_DIR=${OPENCODE_CONFIG_DIR-}"',
           'echo "ENV_OCPM_PROFILE=${OCPM_PROFILE-}"',
+          'echo "ENV_OPENCODE_DISABLE_PROJECT_CONFIG=${OPENCODE_DISABLE_PROJECT_CONFIG-}"',
           'for a in "$@"; do echo "ARG:$a"; done',
           "",
         ].join("\n");

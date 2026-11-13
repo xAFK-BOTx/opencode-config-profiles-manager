@@ -21,6 +21,14 @@ In OpenCode V2, one background service serves one config. If you just set
 OpenCode sees `disabled` and starts a private server for the profile. The global
 `service.json` and the shared service remain untouched.
 
+That private server never reads the `env` block of `service.json` — OpenCode applies it
+only to the managed background service. So `ocpm` reads `service.json` itself and passes
+its `env` to the process it launches:
+
+```json
+{ "disabled": true, "env": { "OPENCODE_DISABLE_PROJECT_CONFIG": "1" } }
+```
+
 ## Installation
 
 ```bash
@@ -140,6 +148,13 @@ The copied `.gitignore` ignores `service.json`, so it will not end up in git;
 - If `ocpm run` is launched from inside `~/.config/opencode`, `OPENCODE_DISABLE_PROJECT_CONFIG=1`
   is set so that the global `opencode.json` is not also picked up as a project config
   and does not override the profile.
+- The `env` block of the profile `service.json` is passed to the environment of
+  `ocpm run`, `ocpm exec`, `ocpm shell` and `ocpm env`. Only strings with valid
+  environment names are forwarded; `XDG_STATE_HOME` is skipped, as in OpenCode itself.
+  This is the only way to enable `OPENCODE_DISABLE_PROJECT_CONFIG` for a profile.
+- For `default`, `env` from the global `service.json` is applied by the shared service
+  when it starts, not by the client. After editing the file, run
+  `opencode service restart`.
 - `ocpm env` executed from inside the configuration directory leaves
   `OPENCODE_DISABLE_PROJECT_CONFIG=1` in the current shell. If you then move to a
   project with its own `opencode.json`, run `unset OPENCODE_DISABLE_PROJECT_CONFIG`

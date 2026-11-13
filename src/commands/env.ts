@@ -3,7 +3,7 @@ import { isInsideConfigDir } from "../core/opencode.js";
 import { CliError, warn } from "../core/output.js";
 import { resolvePaths, type PathOptions } from "../core/paths.js";
 import { resolveProfile } from "../core/profile.js";
-import { ensureServiceDisabled } from "../core/service.js";
+import { ensureServiceDisabled, readServiceEnv } from "../core/service.js";
 
 type Shell = "sh" | "fish" | "powershell";
 
@@ -34,6 +34,12 @@ function quoteFish(value: string): string {
 
 function quotePowerShell(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
+}
+
+function exportLine(shell: Shell, key: string, value: string): string {
+  if (shell === "sh") return `export ${key}=${quoteSh(value)}`;
+  if (shell === "fish") return `set -gx ${key} ${quoteFish(value)}`;
+  return `$env:${key} = ${quotePowerShell(value)}`;
 }
 
 export async function envCommand(name: string, options: EnvOptions): Promise<void> {
@@ -107,5 +113,7 @@ export async function envCommand(name: string, options: EnvOptions): Promise<voi
       );
     }
   }
+  const serviceEnv = await readServiceEnv(profile.dir);
+  for (const [key, value] of Object.entries(serviceEnv)) lines.push(exportLine(shell, key, value));
   process.stdout.write(lines.join("\n") + "\n");
 }

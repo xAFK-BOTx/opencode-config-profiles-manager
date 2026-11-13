@@ -8,6 +8,7 @@ import { resolvePaths, type PathOptions } from "../core/paths.js";
 import { hasConfig, listProfiles, resolveProfile, type Profile } from "../core/profile.js";
 import {
   ensureServiceDisabled,
+  hasInvalidEnv,
   hasSecret,
   hasServiceFile,
   readService,
@@ -88,6 +89,10 @@ async function checkProfile(profile: Profile, fix: boolean): Promise<CheckResult
       }
       if (hasSecret(service)) {
         warn(`${profile.name}: в service.json есть password/remote`);
+        warnings++;
+      }
+      if (hasInvalidEnv(service)) {
+        warn(`${profile.name}: service.json env должен быть объектом строк`);
         warnings++;
       }
     }

@@ -6,6 +6,7 @@ import { CliError } from "./output.js";
 export interface BuildEnvOptions {
   configDir?: string;
   cwd?: string;
+  serviceEnv?: Record<string, string>;
 }
 
 export function isInsideConfigDir(configDir: string, cwd: string): boolean {
@@ -25,7 +26,7 @@ export function buildProfileEnv(
       delete env.OPENCODE_DISABLE_PROJECT_CONFIG;
       delete env.OCPM_DISABLE_PROJECT_CONFIG;
     }
-    return env;
+    return withServiceEnv(env, options.serviceEnv);
   }
   env.OPENCODE_CONFIG_DIR = profile.dir;
   env.OCPM_PROFILE = profile.name;
@@ -43,7 +44,14 @@ export function buildProfileEnv(
     env.OPENCODE_DISABLE_PROJECT_CONFIG = "1";
     env.OCPM_DISABLE_PROJECT_CONFIG = "1";
   }
-  return env;
+  return withServiceEnv(env, options.serviceEnv);
+}
+
+function withServiceEnv(
+  env: NodeJS.ProcessEnv,
+  serviceEnv: Record<string, string> | undefined,
+): NodeJS.ProcessEnv {
+  return serviceEnv === undefined ? env : Object.assign(env, serviceEnv);
 }
 
 export function buildRunArgs(profile: Profile, args: string[], serviceOk: boolean): string[] {

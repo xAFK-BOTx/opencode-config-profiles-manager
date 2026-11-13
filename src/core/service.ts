@@ -46,3 +46,28 @@ export async function ensureServiceDisabled(dir: string): Promise<EnsureResult> 
 export function hasSecret(service: ServiceInfo | undefined): boolean {
   return Boolean(service && (service.password || service.remote));
 }
+
+const ENV_KEY = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const SKIPPED_ENV = new Set(["XDG_STATE_HOME"]);
+
+export function serviceEnv(service: ServiceInfo | undefined): Record<string, string> {
+  const source = service?.env;
+  if (source === null || typeof source !== "object" || Array.isArray(source)) return {};
+  const result: Record<string, string> = {};
+  for (const [key, value] of Object.entries(source)) {
+    if (typeof value !== "string" || !ENV_KEY.test(key) || SKIPPED_ENV.has(key)) continue;
+    result[key] = value;
+  }
+  return result;
+}
+
+export async function readServiceEnv(dir: string): Promise<Record<string, string>> {
+  return serviceEnv(await readService(dir));
+}
+
+export function hasInvalidEnv(service: ServiceInfo | undefined): boolean {
+  const source = service?.env;
+  if (source === undefined) return false;
+  if (source === null || typeof source !== "object" || Array.isArray(source)) return true;
+  return Object.entries(source).some(([key, value]) => typeof value !== "string" || !ENV_KEY.test(key));
+}

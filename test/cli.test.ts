@@ -144,6 +144,48 @@ describe("ocpm cli", () => {
     expect(result.stdout.trim()).toBe(join(base, "profiles", "unity"));
   });
 
+  it("run передаёт env из service.json профиля", async () => {
+    const { base, env } = await setup();
+    runCli(["create", "unity", "--from", "default"], env);
+    await writeFile(
+      join(base, "profiles", "unity", "service.json"),
+      JSON.stringify({ disabled: true, env: { OPENCODE_DISABLE_PROJECT_CONFIG: "1" } }) + "\n",
+    );
+    const result = runCli(["run", "unity", "--", "--version"], env);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("ENV_OPENCODE_DISABLE_PROJECT_CONFIG=1");
+  });
+
+  it("exec передаёт env из service.json профиля", async () => {
+    const { base, env } = await setup();
+    runCli(["create", "unity", "--from", "default"], env);
+    await writeFile(
+      join(base, "profiles", "unity", "service.json"),
+      JSON.stringify({ disabled: true, env: { OPENCODE_DISABLE_PROJECT_CONFIG: "1" } }) + "\n",
+    );
+    const result = runCli(
+      ["exec", "unity", "--", process.execPath, "-e", "console.log(process.env.OPENCODE_DISABLE_PROJECT_CONFIG)"],
+      env,
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout.trim()).toBe("1");
+  });
+
+  it("env печатает env из service.json", async () => {
+    const { base, env } = await setup();
+    runCli(["create", "unity", "--from", "default"], env);
+    await writeFile(
+      join(base, "profiles", "unity", "service.json"),
+      JSON.stringify({ disabled: true, env: { OPENCODE_DISABLE_PROJECT_CONFIG: "1" } }) + "\n",
+    );
+    const sh = runCli(["env", "unity", "--shell", "sh"], env);
+    expect(sh.stdout).toContain("export OPENCODE_DISABLE_PROJECT_CONFIG='1'");
+    const fish = runCli(["env", "unity", "--shell", "fish"], env);
+    expect(fish.stdout).toContain("set -gx OPENCODE_DISABLE_PROJECT_CONFIG '1'");
+    const pwsh = runCli(["env", "unity", "--shell", "powershell"], env);
+    expect(pwsh.stdout).toContain("$env:OPENCODE_DISABLE_PROJECT_CONFIG = '1'");
+  });
+
   it("doctor проверяет профиль", async () => {
     const { env } = await setup();
     runCli(["create", "unity", "--from", "default"], env);

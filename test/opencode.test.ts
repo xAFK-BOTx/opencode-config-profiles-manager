@@ -56,6 +56,26 @@ describe("buildProfileEnv", () => {
     expect(env.OPENCODE_DISABLE_PROJECT_CONFIG).toBeUndefined();
     expect(env.OCPM_DISABLE_PROJECT_CONFIG).toBeUndefined();
   });
+
+  it("переносит env из service.json в окружение профиля", () => {
+    const env = buildProfileEnv(profile, {}, { serviceEnv: { OPENCODE_DISABLE_PROJECT_CONFIG: "1" } });
+    expect(env.OPENCODE_DISABLE_PROJECT_CONFIG).toBe("1");
+  });
+
+  it("env из service.json перекрывает project config в проекте", () => {
+    const env = buildProfileEnv(
+      profile,
+      { OPENCODE_DISABLE_PROJECT_CONFIG: "1", OCPM_DISABLE_PROJECT_CONFIG: "1" },
+      { configDir: "/base", cwd: "/project", serviceEnv: { OPENCODE_DISABLE_PROJECT_CONFIG: "1" } },
+    );
+    expect(env.OPENCODE_DISABLE_PROJECT_CONFIG).toBe("1");
+  });
+
+  it("переносит env из service.json в default", () => {
+    const env = buildProfileEnv(defaultProfile, {}, { serviceEnv: { OPENCODE_DISABLE_PROJECT_CONFIG: "1" } });
+    expect(env.OPENCODE_DISABLE_PROJECT_CONFIG).toBe("1");
+    expect(env.OPENCODE_CONFIG_DIR).toBeUndefined();
+  });
 });
 
 describe("buildRunArgs", () => {
